@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<h2>My Details</h2>
+<p>Please complete all fields before requesting an appointment.</p>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn" type="submit">Save Details</button>
+</form>
+{% endblock %}

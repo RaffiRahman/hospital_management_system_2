@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Hospital Management{% endblock %}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color: #222; }
+    nav { background: #0b5ed7; padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
+    nav a, nav button { color: #fff; text-decoration: none; background: none; border: none;
+                        font-size: 1rem; cursor: pointer; padding: 0; }
+    nav a:hover, nav button:hover { text-decoration: underline; }
+    nav .brand { font-weight: bold; font-size: 1.15rem; margin-right: auto; }
+    nav form { margin: 0; }
+    main { max-width: 900px; margin: 24px auto; background: #fff; padding: 24px;
+           border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    h2, h3 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e3e3e3; }
+    th { background: #f0f3f7; }
+    input, select, textarea { width: 100%; padding: 8px; margin: 4px 0 12px;
+                              border: 1px solid #bbb; border-radius: 4px; font-size: 1rem; }
+    .btn { display: inline-block; padding: 8px 14px; background: #0b5ed7; color: #fff;
+           border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: .95rem; }
+    .btn-green { background: #198754; }
+    .btn-red { background: #dc3545; }
+    .messages { list-style: none; padding: 0; margin: 0 auto; max-width: 900px; }
+    .messages li { padding: 12px 16px; margin-top: 12px; border-radius: 4px; background: #e2e3e5; }
+    .messages .success { background: #d1e7dd; color: #0f5132; }
+    .messages .error   { background: #f8d7da; color: #842029; }
+    .messages .warning { background: #fff3cd; color: #664d03; }
+    .messages .info    { background: #cff4fc; color: #055160; }
+    .badge { padding: 3px 8px; border-radius: 10px; font-size: .85rem; }
+    .badge-REQUESTED { background: #fff3cd; }
+    .badge-CONFIRMED { background: #d1e7dd; }
+    .badge-CANCELLED { background: #f8d7da; }
+    .helptext, .errorlist { font-size: .85rem; color: #666; }
+    .errorlist { color: #dc3545; list-style: none; padding: 0; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="/">🏥 Hospital Management</a>
+
+  {% if user.is_authenticated %}
+    {% if is_assistant %}
+      <a href="{% url 'assistant_dashboard' %}">Dashboard</a>
+    {% else %}
+      <a href="{% url 'request_appointment' %}">Book Appointment</a>
+      <a href="{% url 'my_appointments' %}">My Appointments</a>
+      <a href="{% url 'edit_profile' %}">My Profile</a>
+    {% endif %}
+    <span>Hi, {{ user.username }}</span>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Logout</button>
+    </form>
+  {% else %}
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+  {% endif %}
+</nav>
+
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+    <li class="{{ message.tags }}">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

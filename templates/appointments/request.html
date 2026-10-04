@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Request Appointment{% endblock %}
+{% block content %}
+<h2>Request an Appointment</h2>
+
+{% if slots %}
+<form method="post">
+  {% csrf_token %}
+
+  <label for="slot">Choose a doctor and time slot</label>
+  <select name="slot" id="slot" required>
+    <option value="">-- Select a free slot --</option>
+    {% regroup slots by doctor as doctor_list %}
+    {% for group in doctor_list %}
+      <optgroup label="{{ group.grouper }}">
+        {% for slot in group.list %}
+          <option value="{{ slot.pk }}">
+            {{ slot.date|date:"D, d M Y" }} · {{ slot.start_time|time:"H:i" }} – {{ slot.end_time|time:"H:i" }}
+          </option>
+        {% endfor %}
+      </optgroup>
+    {% endfor %}
+  </select>
+
+  <label for="reason">Reason for visit</label>
+  <textarea name="reason" id="reason" rows="4" placeholder="Describe your symptoms or reason"></textarea>
+
+  <button class="btn" type="submit">Submit Request</button>
+</form>
+{% else %}
+<p>No free slots are available right now. Please check back later.</p>
+{% endif %}
+{% endblock %}

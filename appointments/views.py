@@ -1,4 +1,4 @@
-from accounts.decorators import patient_required
+from accounts.decorators import assistant_required, patient_required
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -7,11 +7,13 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from .models import Slot, Appointment
 from accounts.models import Patient
+from django.views.decorators.http import require_POST
 
 
 # Create your views here.
 
 @login_required
+@patient_required
 def my_appointments(request):
     patient = request.user.patient
     appointments = (
@@ -39,6 +41,7 @@ def assistant_dashboard(request):
     return render(request, 'appointments/assistant_dashboard.html', context)
 
 @login_required
+@patient_required
 def request_appointment(request):
     patient = request.user.patient
 
@@ -46,7 +49,10 @@ def request_appointment(request):
         messages.warning(request, "Please complete your profile before requesting an appointment.")
         return redirect('edit_profile')
 
-    slots = Slot.objects.filter(is_booked=False).select_related('doctor__user')
+    #slots = Slot.objects.filter(is_booked=False).select_related('doctor__user')
+    slots = (Slot.objects.filter(is_booked=False)
+         .select_related('doctor__user')
+         .order_by('doctor__id', 'date', 'start_time'))
 
     if request.method == 'POST':
         slot = slots.get(pk=request.POST['slot'])
@@ -62,6 +68,7 @@ def request_appointment(request):
     return render(request, 'appointments/request.html', {'slots': slots})
 
 @assistant_required
+@require_POST
 def confirm_appointment(request, pk):
     with transaction.atomic():
         appt = get_object_or_404(
@@ -88,6 +95,7 @@ def confirm_appointment(request, pk):
     return redirect('assistant_dashboard')
 
 @assistant_required
+@require_POST
 def cancel_appointment(request, pk):
     with transaction.atomic():
         appt = get_object_or_404(

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}My Appointments{% endblock %}
+{% block content %}
+<h2>My Appointments</h2>
+
+{% if appointments %}
+<table>
+  <tr>
+    <th>Doctor</th>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Reason</th>
+    <th>Status</th>
+  </tr>
+  {% for appt in appointments %}
+  <tr>
+    <td>{{ appt.doctor }}</td>
+    <td>{{ appt.slot.date|date:"d M Y" }}</td>
+    <td>{{ appt.slot.start_time|time:"H:i" }}</td>
+    <td>{{ appt.reason|default:"—" }}</td>
+    <td><span class="badge badge-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>You have no appointments yet.</p>
+{% endif %}
+
+<a class="btn" href="{% url 'request_appointment' %}">Request a new appointment</a>
+{% endblock %}

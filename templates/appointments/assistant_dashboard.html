@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Assistant Dashboard{% endblock %}
+{% block content %}
+<h2>Assistant Dashboard</h2>
+
+<h3>Pending Requests ({{ pending|length }})</h3>
+{% if pending %}
+<table>
+  <tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Actions</th></tr>
+  {% for appt in pending %}
+  <tr>
+    <td>{{ appt.patient }}</td>
+    <td>{{ appt.doctor }}</td>
+    <td>{{ appt.slot.date|date:"d M Y" }}</td>
+    <td>{{ appt.slot.start_time|time:"H:i" }}</td>
+    <td>{{ appt.reason|default:"—" }}</td>
+    <td>
+      <form method="post" action="{% url 'confirm_appointment' appt.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn btn-green" type="submit">Confirm</button>
+      </form>
+      <form method="post" action="{% url 'cancel_appointment' appt.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn btn-red" type="submit">Cancel</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No pending requests.</p>
+{% endif %}
+
+<h3>Confirmed ({{ confirmed|length }})</h3>
+{% if confirmed %}
+<table>
+  <tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Action</th></tr>
+  {% for appt in confirmed %}
+  <tr>
+    <td>{{ appt.patient }}</td>
+    <td>{{ appt.doctor }}</td>
+    <td>{{ appt.slot.date|date:"d M Y" }}</td>
+    <td>{{ appt.slot.start_time|time:"H:i" }}</td>
+    <td>
+      <form method="post" action="{% url 'cancel_appointment' appt.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-red" type="submit">Cancel</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No confirmed appointments.</p>
+{% endif %}
+
+<h3>Cancelled ({{ cancelled|length }})</h3>
+{% if cancelled %}
+<table>
+  <tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th></tr>
+  {% for appt in cancelled %}
+  <tr>
+    <td>{{ appt.patient }}</td>
+    <td>{{ appt.doctor }}</td>
+    <td>{{ appt.slot.date|date:"d M Y" }}</td>
+    <td>{{ appt.slot.start_time|time:"H:i" }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No cancelled appointments.</p>
+{% endif %}
+{% endblock %}
